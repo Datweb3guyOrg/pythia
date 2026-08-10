@@ -8,7 +8,7 @@ name: Pythia trading run
 # switch back, or as a manual one-off via workflow_dispatch.
 on:
   schedule:
-    - cron: "*/10 * * * *" # kept in sync with daemon.ts's INTERVAL_MS
+    - cron: "*/5 * * * *" # kept in sync with daemon.ts's INTERVAL_MS
   workflow_dispatch: {} # manual trigger button in the Actions tab
 
 jobs:

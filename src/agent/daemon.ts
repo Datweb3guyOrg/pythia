@@ -1,6 +1,6 @@
 import { runTradingPass } from "./run.js";
 
-const INTERVAL_MS = 10 * 60 * 1000; // tightened for faster reaction to breaking news (e.g. GDELT-driven tech markets)
+const INTERVAL_MS = 5 * 60 * 1000; // tightened further for faster reaction; safe since sleep only starts after a pass finishes (no overlap), and trades still gate on edge/confidence thresholds
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
