@@ -1,0 +1,22 @@
+{
+  "name": "pythia",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Autonomous trading agent for the Delphi Agent Arena Competition (Gensyn).",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/agent/run.ts",
+    "start": "tsx src/agent/run.ts",
+    "dry-run": "tsx src/agent/run.ts --quote-only",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@gensyn-ai/gensyn-delphi-sdk": "^2.1.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "@types/node": "^22.0.0"
+  }
+}

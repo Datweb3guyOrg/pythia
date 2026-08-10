@@ -1,0 +1,49 @@
+name: Pythia trading run
+
+on:
+  schedule:
+    # every 30 minutes — matches the strategy's actual cadence (waiting on
+    # BLS releases, forecast updates, launch schedules), not a HFT loop
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {} # manual trigger button in the Actions tab
+
+jobs:
+  trade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Restore category-spent state
+        uses: actions/cache@v4
+        with:
+          path: state/
+          key: pythia-state-${{ github.run_id }}
+          restore-keys: |
+            pythia-state-
+
+      - run: npm ci
+
+      - name: Run agent
+        env:
+          DELPHI_API_ACCESS_KEY: ${{ secrets.DELPHI_API_ACCESS_KEY }}
+          DELPHI_SIGNER_TYPE: private_key
+          WALLET_PRIVATE_KEY: ${{ secrets.WALLET_PRIVATE_KEY }}
+          DELPHI_NETWORK: competition-testnet
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: npm start
+
+      # actions/cache's restore-keys pattern means the exact key (tied to
+      # this run_id) never hits on restore, so save always runs and writes
+      # a fresh entry — old entries age out under the shared cache quota
+      - name: Save category-spent state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state/
+          key: pythia-state-${{ github.run_id }}
