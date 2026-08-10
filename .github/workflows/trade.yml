@@ -1,10 +1,14 @@
 name: Pythia trading run
 
+# BACKUP ONLY — Fly.io (pythia-delphi-agent, src/agent/daemon.ts) is the
+# primary deployment. Do not enable this on a schedule at the same time as
+# Fly is running: both read/write category-spent state independently, so
+# running concurrently could double up on category exposure caps. This is
+# left here for if the GitHub account billing lock clears and you want to
+# switch back, or as a manual one-off via workflow_dispatch.
 on:
   schedule:
-    # every 30 minutes — matches the strategy's actual cadence (waiting on
-    # BLS releases, forecast updates, launch schedules), not a HFT loop
-    - cron: "*/30 * * * *"
+    - cron: "*/10 * * * *" # kept in sync with daemon.ts's INTERVAL_MS
   workflow_dispatch: {} # manual trigger button in the Actions tab
 
 jobs:

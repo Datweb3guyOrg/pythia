@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { pathToFileURL } from "node:url";
 import { DelphiClient } from "@gensyn-ai/gensyn-delphi-sdk";
 import type { Market } from "@gensyn-ai/gensyn-delphi-sdk";
 import type { Category, MarketContext } from "../estimators/types.js";
@@ -11,11 +12,10 @@ import { sunspotEstimator } from "../estimators/sunspot.js";
 import { seaIceEstimator } from "../estimators/seaice.js";
 import { spacexLaunchEstimator } from "../estimators/spacex.js";
 import { announcementEstimator } from "../estimators/announcement.js";
+import { cultureEstimator } from "../estimators/culture.js";
 import { sizePosition, DEFAULT_SIZING } from "../sizing.js";
 import { findSharesForTokenBudget } from "./shareSearch.js";
 import { loadCategorySpent, saveCategorySpent } from "./state.js";
-
-const QUOTE_ONLY = process.argv.includes("--quote-only");
 
 // Multiple estimators can share a category (e.g. "miscellaneous" has weather,
 // sunspot, and sea ice) — each one internally filters by exact marketAddress
@@ -31,6 +31,7 @@ const estimators = [
   seaIceEstimator,
   spacexLaunchEstimator,
   announcementEstimator,
+  cultureEstimator,
 ];
 const KNOWN_CATEGORIES = new Set(estimators.map((e) => e.category));
 
@@ -82,7 +83,8 @@ async function executeBuy(
   client: DelphiClient,
   marketAddress: `0x${string}`,
   outcomeIdx: number,
-  tokenBudget: bigint
+  tokenBudget: bigint,
+  quoteOnly: boolean
 ): Promise<boolean> {
   const { sharesOut, tokensIn } = await findSharesForTokenBudget(client, marketAddress, outcomeIdx, tokenBudget);
   if (sharesOut === 0n) {
@@ -90,7 +92,7 @@ async function executeBuy(
     return false;
   }
   console.log(`  quote: ${tokensIn} tokens in for ${sharesOut} shares (budget ${tokenBudget})`);
-  if (QUOTE_ONLY) return false;
+  if (quoteOnly) return false;
 
   await client.ensureTokenApproval({ marketAddress, minimumAmount: tokensIn });
   const result = await client.buyShares({
@@ -103,7 +105,8 @@ async function executeBuy(
   return true;
 }
 
-async function main() {
+/** One full discover -> estimate -> size -> execute pass over all open markets. */
+export async function runTradingPass(quoteOnly: boolean): Promise<void> {
   const client = new DelphiClient({
     network: (process.env.DELPHI_NETWORK as any) ?? "competition-testnet",
     apiKey: process.env.DELPHI_API_ACCESS_KEY,
@@ -152,7 +155,7 @@ async function main() {
       targetOutcomeIdx = ctx.outcomeIdx === 0 ? 1 : 0;
     }
 
-    const executed = await executeBuy(client, ctx.marketAddress, targetOutcomeIdx, decision.stake);
+    const executed = await executeBuy(client, ctx.marketAddress, targetOutcomeIdx, decision.stake, quoteOnly);
     if (executed) {
       categorySpent.set(ctx.category, spent + decision.stake);
       await saveCategorySpent(categorySpent); // save after every trade, not just at exit — crash-safe
@@ -160,7 +163,13 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// only self-invoke when run directly (`tsx src/agent/run.ts`), not when
+// imported by daemon.ts for the looped Fly.io deployment
+const isMainModule = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMainModule) {
+  const quoteOnly = process.argv.includes("--quote-only");
+  runTradingPass(quoteOnly).catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

@@ -8,6 +8,7 @@
     "dev": "tsx watch src/agent/run.ts",
     "start": "tsx src/agent/run.ts",
     "dry-run": "tsx src/agent/run.ts --quote-only",
+    "daemon": "tsx src/agent/daemon.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

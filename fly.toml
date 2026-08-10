@@ -1,0 +1,14 @@
+# fly.toml — Pythia runs as a background worker (daemon.ts loops forever),
+# not a web service, so there's deliberately no [http_service] block: that
+# would make Fly treat this as scale-to-zero-on-no-traffic, which would kill
+# the trading loop since nothing ever sends it HTTP requests.
+
+app = 'pythia-delphi-agent'
+primary_region = 'lhr'
+
+[build]
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1

@@ -207,6 +207,25 @@ export const ANNOUNCEMENT_MARKETS: AnnouncementMarketConfig[] = [
   },
 ];
 
+export interface CultureMarketConfig {
+  marketAddress: `0x${string}`;
+  outcomeIdx: number;
+  /** exact show_title as it appears in Netflix's public Top10 TSV dataset */
+  targetTitle: string;
+}
+
+export const CULTURE_MARKETS: CultureMarketConfig[] = [
+  {
+    // "Will 'A Quiet Place: Day One' be the #1 US movie in the Netflix Top 10 list published Aug 11, 2026?"
+    // No public US-only feed exists (Netflix's countries TSV excludes the US;
+    // it's only broken out on the site itself, which has no stable API) — this
+    // uses the global "Films (English)" list as a proxy, hence capped confidence.
+    marketAddress: "0x41026490b1882d909200bacab10ea15bb9a07314",
+    outcomeIdx: 0, // "Yes"
+    targetTitle: "A Quiet Place: Day One",
+  },
+];
+
 export interface PoliticsMarketConfig {
   marketAddress: `0x${string}`;
   outcomeIdx: number;
