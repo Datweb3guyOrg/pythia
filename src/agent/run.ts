@@ -134,7 +134,23 @@ export async function runTradingPass(quoteOnly: boolean): Promise<void> {
   const contexts = buildMarketContexts(markets ?? []);
   const bankroll = await client.getErc20Balance();
 
+  // One shot per market, not incremental top-ups every pass — leaderboard
+  // data shows high trade frequency correlates with worse PnL here (LMSR
+  // price impact is a real cost paid on every trade, win or lose), and the
+  // agents doing best all made few, concentrated bets rather than repeatedly
+  // re-entering the same market as long as edge kept clearing threshold.
+  const signer = await client.getSigner();
+  const { positions: currentPositions } = await client.listPositions({
+    wallet: signer.address,
+    redeemedOrLiquidated: false,
+  });
+  const heldMarkets = new Set((currentPositions ?? []).map((p) => p.marketProxy.toLowerCase()));
+
   for (const ctx of contexts) {
+    if (heldMarkets.has(ctx.marketAddress.toLowerCase())) {
+      continue; // already holding a position here — one shot per market, not a top-up every pass
+    }
+
     const est = await estimateContext(ctx);
     if (!est) continue; // no config/signal for this market yet — correct to skip
 
