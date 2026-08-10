@@ -17,6 +17,7 @@ import { sizePosition, DEFAULT_SIZING } from "../sizing.js";
 import { findSharesForTokenBudget } from "./shareSearch.js";
 import { loadCategorySpent, saveCategorySpent } from "./state.js";
 import { redeemSettledPositions } from "./redeem.js";
+import { checkForNewMarkets } from "./marketWatch.js";
 
 // Multiple estimators can share a category (e.g. "miscellaneous" has weather,
 // sunspot, and sea ice) — each one internally filters by exact marketAddress
@@ -130,6 +131,10 @@ export async function runTradingPass(quoteOnly: boolean): Promise<void> {
     limit: 50,
     pricesAndImpliedProbabilities: true,
   });
+
+  if (!quoteOnly) {
+    await checkForNewMarkets(markets ?? []); // avoid spamming Telegram from local dry-runs
+  }
 
   const contexts = buildMarketContexts(markets ?? []);
   const bankroll = await client.getErc20Balance();
