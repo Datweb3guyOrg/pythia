@@ -17,10 +17,13 @@ export const DEFAULT_SIZING: SizingConfig = {
   kellyFraction: 0.35,
   edgeThreshold: 0.06,
   confidenceThreshold: 0.4,
-  // scaled against the real competition starting balance (1,000 TST) — 10%
-  // per market, 30% per category, so one bad estimator can't wipe the account
-  maxStakePerMarket: 100_000_000n, // 100 tokens, 6 decimals
-  maxStakePerCategory: 300_000_000n, // 300 tokens, 6 decimals
+  // raised deliberately (was 10%/30%) to let high-confidence calls size up
+  // closer to how the current leaderboard leader concentrates bets — real
+  // tradeoff accepted: a wrong proxy-based estimate (see estimator risk
+  // notes) now costs more. kellyFraction unchanged, so low-confidence
+  // trades still don't use this extra room on their own.
+  maxStakePerMarket: 350_000_000n, // 350 tokens, 6 decimals (35% of 1,000 TST bankroll)
+  maxStakePerCategory: 700_000_000n, // 700 tokens, 6 decimals (70% of bankroll)
 };
 
 export interface SizingDecision {
