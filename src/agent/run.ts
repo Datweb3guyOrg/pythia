@@ -16,6 +16,7 @@ import { cultureEstimator } from "../estimators/culture.js";
 import { sizePosition, DEFAULT_SIZING } from "../sizing.js";
 import { findSharesForTokenBudget } from "./shareSearch.js";
 import { loadCategorySpent, saveCategorySpent } from "./state.js";
+import { redeemSettledPositions } from "./redeem.js";
 
 // Multiple estimators can share a category (e.g. "miscellaneous" has weather,
 // sunspot, and sea ice) — each one internally filters by exact marketAddress
@@ -117,6 +118,10 @@ export async function runTradingPass(quoteOnly: boolean): Promise<void> {
     cdpWalletSecret: process.env.CDP_WALLET_SECRET,
     cdpWalletAddress: process.env.CDP_WALLET_ADDRESS as `0x${string}` | undefined,
   });
+
+  if (!quoteOnly) {
+    await redeemSettledPositions(client);
+  }
 
   const categorySpent = await loadCategorySpent();
 
