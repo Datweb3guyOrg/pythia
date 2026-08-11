@@ -202,7 +202,10 @@ export const ANNOUNCEMENT_MARKETS: AnnouncementMarketConfig[] = [
     // "Will Take-Two or Rockstar disclose a numeric GTA VI preorder figure by 03:59 UTC on Aug 14, 2026?"
     marketAddress: "0x260838dea933ec339270a8565cf8601b58a85db2",
     outcomeIdx: 0, // "Yes"
-    gdeltQuery: '("Take-Two" OR "Rockstar") "GTA" preorder',
+    // was `"GTA"` — GDELT's phrase search rejects quoted phrases that short
+    // ("The specified phrase is too short"), which silently broke this
+    // query for every single pass. "GTA VI" is both longer and more precise.
+    gdeltQuery: '("Take-Two" OR "Rockstar") "GTA VI" preorder',
     deadline: "2026-08-14T03:59:00Z",
   },
 ];
