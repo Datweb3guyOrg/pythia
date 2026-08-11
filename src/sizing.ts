@@ -15,8 +15,14 @@ export interface SizingConfig {
 
 export const DEFAULT_SIZING: SizingConfig = {
   kellyFraction: 0.35,
-  edgeThreshold: 0.06,
-  confidenceThreshold: 0.4,
+  // raised above the original 0.06/0.4 — the leaderboard pattern is
+  // unambiguous: agents with few, high-conviction, early trades (tictac,
+  // ZERΘMΛXX, Karve) are beating high-frequency traders significantly.
+  // Deliberately narrowing to only fire on strong signal, not widening to
+  // catch every marginal case (that was the prior, now-reverted change) —
+  // fewer trades, each one only taken when confidence is genuinely high.
+  edgeThreshold: 0.08,
+  confidenceThreshold: 0.5,
   // raised deliberately (was 10%/30%) to let high-confidence calls size up
   // closer to how the current leaderboard leader concentrates bets — real
   // tradeoff accepted: a wrong proxy-based estimate (see estimator risk
