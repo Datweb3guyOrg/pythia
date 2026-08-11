@@ -1,6 +1,6 @@
 import type { Estimator, Estimate, MarketContext } from "./types.js";
 import { ANNOUNCEMENT_MARKETS } from "../config/markets.js";
-import { gdeltFetch } from "../lib/gdeltThrottle.js";
+import { gdeltFetchJson } from "../lib/gdeltThrottle.js";
 
 interface Article {
   title: string;
@@ -9,9 +9,7 @@ interface Article {
 
 async function searchRecentArticles(query: string): Promise<Article[]> {
   const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=artlist&format=json&timespan=3d&maxrecords=20`;
-  const res = await gdeltFetch(url);
-  if (!res.ok) throw new Error(`GDELT request failed: ${res.status}`);
-  const json = await res.json();
+  const json = await gdeltFetchJson(url);
   return json?.articles ?? [];
 }
 

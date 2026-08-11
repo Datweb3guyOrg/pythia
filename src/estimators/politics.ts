@@ -1,6 +1,6 @@
 import type { Estimator, Estimate, MarketContext } from "./types.js";
 import { POLITICS_MARKETS } from "../config/markets.js";
-import { gdeltFetch } from "../lib/gdeltThrottle.js";
+import { gdeltFetchJson } from "../lib/gdeltThrottle.js";
 
 interface TimelinePoint {
   date: string;
@@ -10,9 +10,7 @@ interface TimelinePoint {
 /** GDELT's timeline modes return { timeline: [{ series, data: [{date, value}] }] } */
 async function fetchTimeline(query: string, mode: "timelinetone" | "timelinevolraw"): Promise<TimelinePoint[]> {
   const url = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(query)}&mode=${mode}&format=json&timespan=7d`;
-  const res = await gdeltFetch(url);
-  if (!res.ok) throw new Error(`GDELT request failed: ${res.status}`);
-  const json = await res.json();
+  const json = await gdeltFetchJson(url);
   const data = json?.timeline?.[0]?.data;
   if (!Array.isArray(data)) return [];
   return data.map((d: any) => ({ date: d.date, value: Number(d.value) })).filter((d: TimelinePoint) => !Number.isNaN(d.value));
