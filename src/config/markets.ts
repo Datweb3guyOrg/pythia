@@ -109,14 +109,24 @@ export interface WeatherMarketConfig {
   /** ISO date (YYYY-MM-DD) the market resolves against */
   resolveDate: string;
   variable: "precipitation_probability" | "temperature_max" | "temperature_min";
-  comparator: ">" | "<" | ">=" | "<=";
+  comparator: ">" | "<" | ">=" | "<=" | "=";
   threshold: number;
   /** true for hurricane/tail-event style questions — caps confidence lower */
   isTailEvent?: boolean;
 }
 
 export const WEATHER_MARKETS: WeatherMarketConfig[] = [
-  // none of the 11 live markets are literal weather questions right now
+  {
+    // "Will Wellington Airport (NZWN) hit a daily high of exactly 15°C on Aug 13, 2026 NZST?"
+    marketAddress: "0xb13bc65ea2c2600f74a4634abf55c65deb6d0edc",
+    outcomeIdx: 0, // "Yes"
+    latitude: -41.3272,
+    longitude: 174.8053,
+    resolveDate: "2026-08-13",
+    variable: "temperature_max",
+    comparator: "=",
+    threshold: 15,
+  },
 ];
 
 export interface SunspotMarketConfig {

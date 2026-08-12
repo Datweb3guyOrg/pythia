@@ -88,7 +88,12 @@ export const weatherEstimator: Estimator = {
       confidence *= Math.max(0.2, 1 - spread / 5);
     }
 
-    const probability = distanceToProbability(value, cfg.threshold, cfg.comparator, 3 /* deg C scale */);
+    // "exactly N°C" means the rounded daily reading equals N — a ±0.5°C
+    // band around the threshold, not literal equality on a continuous value
+    const probability =
+      cfg.comparator === "="
+        ? distanceToProbability(value, cfg.threshold + 0.5, "<", 1.5) * distanceToProbability(value, cfg.threshold - 0.5, ">", 1.5)
+        : distanceToProbability(value, cfg.threshold, cfg.comparator, 3 /* deg C scale */);
 
     return {
       probability,
