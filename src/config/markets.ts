@@ -249,7 +249,20 @@ export interface PoliticsMarketConfig {
 }
 
 export const POLITICS_MARKETS: PoliticsMarketConfig[] = [
-  // none of the 11 live markets are politics right now
+  {
+    // "Will Trump send at least 5 nominations to the US Senate during Aug 9-15, 2026?"
+    marketAddress: "0xb8fcc2c60d686b3978dd002bc20e9a4a5868f5c5",
+    outcomeIdx: 0, // "Yes"
+    gdeltQuery: '"Trump" "nominations" "Senate"',
+    favorsYesWhen: "positive",
+  },
+  {
+    // "Will a Mamdani non-emergency NYC executive order dated Aug 9-15, 2026 be publicly posted by settlement?"
+    marketAddress: "0xa9b716afe262c6ee69eee5979b553c95abead376",
+    outcomeIdx: 0, // "Yes"
+    gdeltQuery: '"Mamdani" "executive order" NYC',
+    favorsYesWhen: "positive",
+  },
 ];
 
 export interface SportsMarketConfig {
