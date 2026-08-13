@@ -30,6 +30,15 @@ export const CRYPTO_MARKETS: CryptoMarketConfig[] = [
     thresholdHigh: 66_000,
     volatilityScale: 0.02, // narrow $2k band on a same-day close — tight scale
   },
+  {
+    // "Will Ethereum's CoinGecko daily close on 2026-08-16 UTC be $1,890 or higher?"
+    marketAddress: "0xdc90c677aee2b74dd060bfa2eff00a27d4d4ca1b",
+    outcomeIdx: 0, // "Yes"
+    coingeckoId: "ethereum",
+    comparator: ">=",
+    threshold: 1890,
+    volatilityScale: 0.05,
+  },
 ];
 
 /**
@@ -126,6 +135,17 @@ export const WEATHER_MARKETS: WeatherMarketConfig[] = [
     variable: "temperature_max",
     comparator: "=",
     threshold: 15,
+  },
+  {
+    // "Will Tokyo's highest temperature on Aug 15, 2026 (JST) be above 31.5°C?"
+    marketAddress: "0xdec196c2f18307998991ff30655a62ab97cb6369",
+    outcomeIdx: 0, // "Yes"
+    latitude: 35.6764,
+    longitude: 139.6500,
+    resolveDate: "2026-08-15",
+    variable: "temperature_max",
+    comparator: ">",
+    threshold: 31.5,
   },
 ];
 
@@ -261,6 +281,13 @@ export const POLITICS_MARKETS: PoliticsMarketConfig[] = [
     marketAddress: "0xa9b716afe262c6ee69eee5979b553c95abead376",
     outcomeIdx: 0, // "Yes"
     gdeltQuery: '"Mamdani" "executive order" NYC',
+    favorsYesWhen: "positive",
+  },
+  {
+    // "Will the Federal Register publish 6+ Presidential documents with publication dates Aug 12-18, 2026?"
+    marketAddress: "0x9face9fff97f8b240e5bf3be24f303742e2c040a",
+    outcomeIdx: 0, // "Yes"
+    gdeltQuery: '"Federal Register" "presidential" document',
     favorsYesWhen: "positive",
   },
 ];
