@@ -1,15 +1,25 @@
 name: Pythia trading run
 
-# BACKUP ONLY — Fly.io (pythia-delphi-agent, src/agent/daemon.ts) is the
-# primary deployment and is currently live. The schedule trigger is
-# deliberately OFF: this account can actually execute workflows (unlike the
-# old billing-locked one), so an active schedule here would fire real trades
-# every 5 minutes concurrently with Fly — both read/write category-spent
-# state independently, with no shared coordination, so that would double up
-# on category exposure caps and could double-trade. Only re-enable the
-# schedule if Fly is deliberately stopped first. workflow_dispatch (manual
-# trigger) stays available for one-off testing.
+# PRIMARY as of 2026-08-13 — `flyctl deploy` is stuck on a local sandbox
+# networking issue (no IPv6 route, flyctl's Go resolver won't fall back to
+# IPv4), so the Fly.io deployment (pythia-delphi-agent) is stuck on an old
+# build and can't receive new estimators/config until that's fixed. GitHub
+# Actions runs on separate infrastructure and isn't affected, so this is now
+# the live path for actual updates.
+#
+# Fly's daemon is still running in parallel on its stale build. This is not
+# a double-trade risk for any single market: the one-shot-per-market check
+# in run.ts reads live positions straight from the chain, not local state,
+# so both deployments independently see the same on-chain truth and neither
+# re-buys a market the other already holds. The one real gap: category-spend
+# caps are NOT coordinated between the two (Fly's persistent volume and this
+# workflow's cache are separate state stores), so combined spend across a
+# category could in principle exceed the intended cap if both fire into new
+# markets in the same window. Low risk in practice since Fly's stale build
+# has no signal on anything added after the last successful Fly deploy.
 on:
+  schedule:
+    - cron: "*/5 * * * *" # matches daemon.ts's INTERVAL_MS
   workflow_dispatch: {} # manual trigger button in the Actions tab
 
 jobs:
